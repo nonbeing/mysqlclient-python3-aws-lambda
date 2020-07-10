@@ -34,7 +34,7 @@ If you get the success message and don't see an error like `ModuleNotFoundError:
 
 `mysqlclient` is usually the first choice for connecting to a MySQL database in Python because of its top-notch performance in most use-cases.
 
-However, since it is a thin wrapper on a C-implementation, it has dependencies on a `libmysqlclient.so` binary, and is thus not a "pure-python" implementation. The binary it depends on, unfortunately introduces platform-specific dependencies. For example, you can't use `mysqlclient` on AWS Lambda with a binary compiled for another platform such as Mac OS. The `libmysqlclient.so` for AWS Lambda needs to be compatible with the specific `Amazon Linux 2` environment that AWS Lambda runs in, and this can be tedious to get right.
+However, since it is a thin wrapper on a C-implementation, it has dependencies on a `libmysqlclient.so` binary, and is thus not a "pure-python" implementation. The binary it depends on, unfortunately, introduces platform-specific dependencies. For example, you can't use `mysqlclient` on AWS Lambda with a binary compiled for another platform such as Mac OS. The `libmysqlclient.so` for AWS Lambda needs to be compatible with the specific `Amazon Linux 2` environment that AWS Lambda runs in, and this can be tedious to get right.
 
 Therefore, it is non-trivial to use `mysqlclient` in AWS Lambda Python code, especially when you want to deploy it in an [AWS Lambda Layer](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 
@@ -54,7 +54,7 @@ The goal of this project is to provide an easy way to build an AWS Lambda layer 
 > The recommended MySQL dialects are mysqlclient and PyMySQL.
 
 ### pymysql
-The PyMySQL community also actively maintains another project, called [`PyMySQL`](https://github.com/PyMySQL/PyMySQL), which is a pure-python implementation. This has benefits such as not having platform-specific dependencies like `mysqlclient`. So it would seem a better fit for AWS Lambda given that it doesn't need special work (as compared to `mysqlclient`). However, it generally offers poorer performance (up to 10x slower than `mysqlclient` in some cases), and though it aims to be 100% compatible with MySQLdb, there can be edge cases, especially when combined with other popular data-science pacakges such as `Pandas` and `SQLAlchemy`. As an example, we discovered  that writing the same df with `to_sql` behaved slighly differenly across `mysqlclient` and `pymysql`. So we decided to stick to `mysqlclient` for these reasons.
+The PyMySQL community also actively maintains another project, called [`PyMySQL`](https://github.com/PyMySQL/PyMySQL), which is a pure-python implementation. This has benefits such as not having platform-specific dependencies like `mysqlclient`. So it would seem a better fit for AWS Lambda given that it doesn't need special work (as compared to `mysqlclient`). However, it generally offers poorer performance - up to 10x slower than `mysqlclient` in some cases. Though `pymysql` aims to be 100% compatible with MySQLdb, there can be undesirable edge cases, especially when combined with other popular data-science pacakges such as `Pandas` and `SQLAlchemy`. As an example, we discovered  that writing the same df with `to_sql` behaved slighly differenly across `mysqlclient` and `pymysql`. So we decided to stick to `mysqlclient` for these reasons.
 
 
 ### MySQL-Connector
