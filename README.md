@@ -45,29 +45,30 @@ The goal of this project is to provide an easy way to build an AWS Lambda layer 
 
 [mysqlclient](https://github.com/PyMySQL/mysqlclient-python) is a mature, stable driver for MySQL, actively maintained by members of the PyMySQL community, and [available on PyPI](https://pypi.org/project/mysqlclient/). It provides a Python wrapper around the MySQL C API; the [core is implemented in C](https://mysqlclient.readthedocs.io/user_guide.html).
 
- `mysqlclient` is in general, usually the top choice from among `mysqlclient`, `pymysql` and Oracle's `MySQL-Connector` for connecting to a MySQL DB in Python. It is the most performance across most use-cases, and very stable.
+ `mysqlclient` is in general, usually the top choice from among `mysqlclient`, `pymysql` and Oracle's `MySQL-Connector` for connecting to a MySQL DB in Python. It is the most performance across most use-cases, and very stable. However, there can be many good reasons to choose any of these drivers over the others - it depends on your use-case.
 
-`mysqlclient` is a [top recommendation on the SQLAlchemy MySQL driver page](https://docs.sqlalchemy.org/en/13/dialects/mysql.html#module-sqlalchemy.dialects.mysql.mysqldb)
+`mysqlclient` is a [top recommendation on the SQLAlchemy MySQL driver page](https://docs.sqlalchemy.org/en/13/dialects/mysql.html#module-sqlalchemy.dialects.mysql.mysqldb):
 
 > mysqlclient supports Python 2 and Python 3 and is very stable.
+
 > The recommended MySQL dialects are mysqlclient and PyMySQL.
 
 ### pymysql
-The PyMySQL community also actively maintains another project, called [`PyMySQL`](https://github.com/PyMySQL/PyMySQL), which is a pure-python implementation.
+The PyMySQL community also actively maintains another project, called [`PyMySQL`](https://github.com/PyMySQL/PyMySQL), which is a pure-python implementation. This has benefits such as not having platform-specific dependencies like `mysqlclient`. So it would seem a better fit for AWS Lambda given that it doesn't need special work (as compared to `mysqlclient`). However, it generally offers poorer performance (up to 10x slower than `mysqlclient` in some cases), and though it aims to be 100% compatible with MySQLdb, there can be edge cases, especially when combined with other popular data-science pacakges such as `Pandas` and `SQLAlchemy`. As an example, we discovered  that writing the same df with `to_sql` behaved slighly differenly across `mysqlclient` and `pymysql`. So we decided to stick to `mysqlclient` for these reasons.
 
 
 ### MySQL-Connector
-Oracle (owner and maintainer of `MySQL`) also provide a pure-python library for talking to MySQL called [`MySQL Connector`](https://dev.mysql.com/doc/connector-python/en/). This is the "official" driver for Python from MySQL.
+Oracle (owner and maintainer of `MySQL`) also provides a pure-python library for talking to MySQL called [`MySQL Connector`](https://dev.mysql.com/doc/connector-python/en/). This is the "official" driver for Python from MySQL.
 
-SQLAlchemy [doesn't recommend](https://docs.sqlalchemy.org/en/13/dialects/mysql.html#module-sqlalchemy.dialects.mysql.mysqlconnector) using this driver:
+Note that SQLAlchemy [doesn't recommend](https://docs.sqlalchemy.org/en/13/dialects/mysql.html#module-sqlalchemy.dialects.mysql.mysqlconnector) using this driver:
 
 > Note
+
 > The MySQL Connector/Python DBAPI has had many issues since its release, some of which may remain unresolved, and the mysqlconnector dialect is **not tested as part of SQLAlchemy’s continuous integration**. The recommended MySQL dialects are mysqlclient and PyMySQL.
 
 ### performance comparison
 `mysqlclient` can run 5x-to-10x faster (on CPython) than `pymysql`, according to these discussions and tests:
 
-[insert pic here]
 - https://wiki.openstack.org/wiki/PyMySQL_evaluation#Architecture_and_Performance
 - http://charlesnagy.info/it/python/python-mysqldb-vs-mysql-connector-query-performance
 - https://www.programmersought.com/article/4675925085/
@@ -76,7 +77,7 @@ SQLAlchemy [doesn't recommend](https://docs.sqlalchemy.org/en/13/dialects/mysql.
 - https://stackoverflow.com/questions/51152183/fastest-way-to-read-huge-mysql-table-in-python
 
 
-Note: `pymysql` could possibly be as fast as (or faster than) `mysqlclient` if used with `PyPy`, but according to [this post on StackOverflow](https://stackoverflow.com/a/52685419/376240), `mysqlclient` is still faster, even on PyPy3.7
+`pymysql` could possibly be as fast as (or faster than) `mysqlclient` if used with `PyPy`, but according to [this post on StackOverflow](https://stackoverflow.com/a/52685419/376240), `mysqlclient` is still faster, even on PyPy3.7
 
 ### summary
 
@@ -88,19 +89,18 @@ This project attempts to solve (or at least alleviate) this problem to a large e
 ### prerequisites
 You need a `*nix` environment where you can run docker commands and bash scripts (such as WSL2 on Windows 10 Pro, which has been tested). Tested on Ubuntu 20.04
 
-Ensure you have docker installed. We will be pulling an [image from docker hub](hub.docker.com/r/lambci/lambda) and then using it to build a local docker image from the `Dockerfile` in this repo.
+Ensure you have docker installed. You will need to pull a [`lambci` image from docker hub](hub.docker.com/r/lambci/lambda) and then using it to build a local docker image from the `Dockerfile` in this repo.
 
 
-### build
+### build the layer locally
 Simply clone this repo and invoke the `build.sh` shell script; it will perform all the steps required.
 
-`build.sh` will use the `Dockerfile` to build a docker image based off the [lambi](https://hub.docker.com/u/lambci) images that very-closely replicate the AWS Lambda execution environment. The `mysql-community-devel` RPM will be downloaded and installed in the image. This is necessary to install `mysqlclient` in Amazon Linux 2. After `pip install mysqlclient` in the docker image, the correct `.so` file and the python libs are copied out from the docker container and zipped into `layer.zip`.
-
+`build.sh` will use the `Dockerfile` to build a docker image based off the `lambci/lambda:build-python3.8` image that very-closely replicates the AWS Lambda environment. The `mysql-community-devel` RPM will be downloaded and installed in the image. This is necessary to `pip install mysqlclient` in Amazon Linux 2. After `pip install mysqlclient` in the docker image has succeeded, the correct `.so` file and the python libs are copied out from the docker container and zipped into `layer.zip`.
 
 
 ### create a new AWS layer with `layer.zip`
 
-You can upload `layer.zip` as-is; you don't need to zip or unzip anything.
+You should upload `layer.zip` as-is; you don't need to zip or unzip anything.
 
 The easiest way is to use the AWS Lambda web console. Of course, there are many ways to create a new layer from a zip, including the AWS CLI. You could potentially also use the [Serverless Framework](serverless.com) for this.
 
@@ -111,10 +111,10 @@ For a nice blog post with screenshots on how to upload a zip file as a new layer
 ### reference the newly-created layer in your lambda function
 Add the new layer to your Lambda function's configuration.
 
-[ADD SCREENSHOTS HERE]
+[TODO: ADD SCREENSHOTS HERE]
 
 ### import and run!
-Finally, you can simply `import MySQLdb` in your Python3.8 Lambda function; here's a barebones example:
+Finally, you can simply `import MySQLdb` in your Python3 Lambda function; here's a barebones example:
 
 ```python
 import MySQLdb
