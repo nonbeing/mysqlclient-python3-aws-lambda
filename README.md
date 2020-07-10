@@ -92,7 +92,7 @@ This project attempts to solve (or at least alleviate) this problem to a large e
 
 You need a `*nix` environment where you can run docker commands and bash scripts (such as WSL2 on Windows 10 Pro, which has been tested). Tested on Ubuntu 20.04
 
-Ensure you have docker installed. You will need to pull a [`lambci` image from docker hub](hub.docker.com/r/lambci/lambda) and then using it to build a local docker image from the `Dockerfile` in this repo.
+Ensure you have docker installed. You will need to pull a [`lambci` image from docker hub](https://hub.docker.com/r/lambci/lambda). This image will be used to build a local docker image using the `Dockerfile` and install the appropriate `mysql-devel` package.
 
 ### build the layer locally
 
