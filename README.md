@@ -4,31 +4,37 @@
 
 - In a hurry?
 - Are you using Python 3.8?
-- Are you using MySQL v8?
-- Do you want to use [mysqlclient](https://github.com/PyMySQL/mysqlclient-python) in your AWS Lambda function, but it's causing you headaches?
+- Are you using MySQL v8.0.x?
+- Are you having trouble importing/using [mysqlclient](https://github.com/PyMySQL/mysqlclient-python) in your AWS Lambda function?
 
-If you answered `yes` to all the above questions, simply upload `build_outputs/layer.zip` file as an AWS Layer to your AWS account.
+If you answered `yes` to all the above questions, simply upload `layer.zip` from the `build_output` dir as an AWS Layer to your AWS account.
 
-After you create the required layer, you can simply `import MySQLdb` to confirm that it is working for you in a Lambda function like this:
+If you answered `no` to any of the above questions, then read on to figure out if you need to build your own `mysqlclient` AWS layer with the tools provided in this repo.
+
+
+For details on how to upload a zip file as a new layer to AWS Lambda, see the section below called **create a new AWS layer with `layer.zip`**.
+
+After you create the required layer, you can configure your Lambda function to use this layer and simply `import MySQLdb` without error in your Lambda function.
+
+Here's a barebones example to test if you are able to import and use `mysqlclient` correctly:
 
 ```python
 import MySQLdb
 
 def lambda_handler(event, context):
-    cf.cust_fun()
     return {
         'statusCode': 200,
         'body': 'MySQLdb was successfully imported'
     }
 ```
 
-If you get the success message and don't see an error from Lambda like `ModuleNotFoundError: No module named 'MySQLdb'`, then you're all set to use `mysqlclient` on AWS Lambda.
-
-If you answered `no` to any of those question, then read on to figure out if you need to build your own AWS layer to use `mysqlclient` using the tools provided in this repo.
+If you get the success message and don't see an error like `ModuleNotFoundError: No module named 'MySQLdb'` or `ImportError: No module named _mysql`, then you're all set to use `mysqlclient` on AWS Lambda.
 
 ## Motivation
 
-`mysqlclient` is usually the first choice for connecting to a MySQL database in Python because of its top-notch performance in most use-cases. However, since it is a thin wrapper on a C-implementation, it has dependencies on a `so` binary, and is thus not a "pure-python" implementation. The binary it depends on, needs to be compatible with the specific `Amazon Linux 2` environment that AWS Lambda runs in, and this can be tedious to get right.
+`mysqlclient` is usually the first choice for connecting to a MySQL database in Python because of its top-notch performance in most use-cases.
+
+However, since it is a thin wrapper on a C-implementation, it has dependencies on a `libmysqlclient.so` binary, and is thus not a "pure-python" implementation. The binary it depends on, unfortunately introduces platform-specific dependencies. For example, you can't use `mysqlclient` on AWS Lambda with a binary compiled for another platform such as Mac OS. The `libmysqlclient.so` for AWS Lambda needs to be compatible with the specific `Amazon Linux 2` environment that AWS Lambda runs in, and this can be tedious to get right.
 
 Therefore, it is non-trivial to use `mysqlclient` in AWS Lambda Python code, especially when you want to deploy it in an [AWS Lambda Layer](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 
@@ -78,10 +84,62 @@ For most use-cases, `mysqlclient` is the preferred choice of DB connector to MyS
 
 This project attempts to solve (or at least alleviate) this problem to a large extent by providing a relatively-straightforward path to building an AWS Layer for `mysqlclient` which can then be readily consumed in AWS Lambda Python functions.
 
-## HowTo
+## Usage
+### prerequisites
+You need a `*nix` environment where you can run docker commands and bash scripts (such as WSL2 on Windows 10 Pro, which has been tested). Tested on Ubuntu 20.04
+
+Ensure you have docker installed. We will be pulling an [image from docker hub](hub.docker.com/r/lambci/lambda) and then using it to build a local docker image from the `Dockerfile` in this repo.
+
+
+### build
+Simply clone this repo and invoke the `build.sh` shell script; it will perform all the steps required.
+
+`build.sh` will use the `Dockerfile` to build a docker image based off the [lambi](https://hub.docker.com/u/lambci) images that very-closely replicate the AWS Lambda execution environment. The `mysql-community-devel` RPM will be downloaded and installed in the image. This is necessary to install `mysqlclient` in Amazon Linux 2. After `pip install mysqlclient` in the docker image, the correct `.so` file and the python libs are copied out from the docker container and zipped into `layer.zip`.
+
+
+
+### create a new AWS layer with `layer.zip`
+
+You can upload `layer.zip` as-is; you don't need to zip or unzip anything.
+
+The easiest way is to use the AWS Lambda web console. Of course, there are many ways to create a new layer from a zip, including the AWS CLI. You could potentially also use the [Serverless Framework](serverless.com) for this.
+
+For a nice blog post with screenshots on how to upload a zip file as a new layer to AWS Lambda, read the [Deploying our Layer](https://www.freecodecamp.org/news/lambda-layers-2f80b9211318/) section.
+
+
+
+### reference the newly-created layer in your lambda function
+Add the new layer to your Lambda function's configuration.
+
+[ADD SCREENSHOTS HERE]
+
+### import and run!
+Finally, you can simply `import MySQLdb` in your Python3.8 Lambda function; here's a barebones example:
+
+```python
+import MySQLdb
+
+def lambda_handler(event, context):
+    return {
+        'statusCode': 200,
+        'body': 'MySQLdb was successfully imported'
+    }
+```
+
+If you get the success message and don't see an error like `ModuleNotFoundError: No module named 'MySQLdb'` or `ImportError: No module named _mysql`, then you're all set to use `mysqlclient` on AWS Lambda.
+
+
+## Feedback and Contributions
+... are most welcome. Please file PRs and issues as you see fit, I will respond to them as soon as I can.
+
+## Troubleshooting
+
+See the [`mysqlclient` FAQ](https://github.com/PyMySQL/mysqlclient-python/blob/a33e1c38363b8c71775394965ca70d576ffd3a90/doc/FAQ.rst) that covers troubleshooting for common error cases, including build errors.
 
 
 ## Credits and Thanks
-The work in this repo is largely based off Seungyeon Kim(Acuros Kim)'s project: https://github.com/StyleShare/aws-lambda-python3-mysql - thanks!
+The work in this repo is largely based off Seungyeon Kim(Acuros Kim)'s project at: https://github.com/StyleShare/aws-lambda-python3-mysql - thanks!
 
 I have adapted that project to build an AWS Layer using the MySQL-devel package for MySQL 8 (instead of 5.5) and targeting Python 3.8 (instead of 3.7) (as of this writing).
+
+Thanks also to Michael Hart for [LambCI](https://github.com/lambci/lambci) - without the LambCI docker images, none of these kinds of solutions would be doable this easily.
