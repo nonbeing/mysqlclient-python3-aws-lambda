@@ -8,7 +8,7 @@ IMAGE_NAME='nonbeing/lambda-python38-mysqlclient'
 sudo rm -rf ${PKG_DIR} ${LIB_DIR}
 mkdir -p ${PKG_DIR} && mkdir -p ${LIB_DIR}
 
-# note: Build a docker image closely matching the AWS Lambda environment with the mysql-devel package installed
+# build a docker image closely matching the AWS Lambda environment, with mysql-devel installed
 docker build -t ${IMAGE_NAME} .
 
 if [ $? -eq 0 ]; then

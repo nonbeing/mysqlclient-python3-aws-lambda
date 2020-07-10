@@ -10,7 +10,8 @@ do
     echo "Checking .so file: '$i'"
     if [[ $i =~ libmysqlclient.so.[[:digit:]]+$ ]];
     then
-        # only copy libmysqlclient.so.21, not libmysqlclient.so or libmysqlclient.so.21.1.20
+        # only copy libmysqlclient.so.21, NOT libmysqlclient.so or libmysqlclient.so.21.1.20
+        # because libmysqlclient.so.21 is the necessary and sufficient file for mysqlclient to work
         echo "COPYING '$i' to output dir..."
         cp $i ${LIB_DIR}
     fi
