@@ -1,1 +1,4 @@
-mysqlclient
+sqlalchemy
+ccy
+forex-python
+pretty_html_table
