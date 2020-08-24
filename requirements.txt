@@ -1,1 +1,2 @@
-mysqlclient
+botocore
+boto3

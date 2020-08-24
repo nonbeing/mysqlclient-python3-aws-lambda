@@ -3,7 +3,7 @@ PKG_DIR='build_output/python'
 LIB_DIR='build_output/lib'
 
 # set the docker image name here (optional)
-IMAGE_NAME='nonbeing/lambda-python38-mysqlclient'
+IMAGE_NAME='nonbeing/lambda-python38-boto3'
 
 sudo rm -rf ${PKG_DIR} ${LIB_DIR}
 mkdir -p ${PKG_DIR} && mkdir -p ${LIB_DIR}
