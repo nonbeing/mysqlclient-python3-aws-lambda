@@ -3,16 +3,8 @@
 PKG_DIR=$1
 LIB_DIR=$2
 
-pip install -r requirements.txt -t ${PKG_DIR};
+# get the cchardet wheel
+# url source: https://pypi.org/project/cchardet/#modal-close
+curl -vkL -O https://files.pythonhosted.org/packages/88/f3/0db5b64fecac9d77302604eb8404807755e8882d3d31bbf33d037861e642/cchardet-2.1.6-cp38-cp38-manylinux2010_x86_64.whl
 
-for i in `ls /usr/lib64/mysql/libmysqlclient.so*`;
-do
-    echo "Checking .so file: '$i'"
-    if [[ $i =~ libmysqlclient.so.[[:digit:]]+$ ]];
-    then
-        # only copy libmysqlclient.so.21, NOT libmysqlclient.so or libmysqlclient.so.21.1.20
-        # because libmysqlclient.so.21 is the necessary and sufficient file for mysqlclient to work
-        echo "COPYING '$i' to output dir..."
-        cp $i ${LIB_DIR}
-    fi
-done
+pip install cchardet-2.1.6-cp38-cp38-manylinux2010_x86_64.whl -t ${PKG_DIR};
