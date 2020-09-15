@@ -112,9 +112,30 @@ For a nice blog post with screenshots on how to upload a zip file as a new layer
 
 ### reference the newly-created layer in your lambda function
 
-Add the new layer to your Lambda function's configuration.
+Here's how to add your new layer to your Lambda function's configuration.
 
-[TODO: ADD SCREENSHOTS HERE]
+In the AWS Lambda Web Console:
+
+#### Step 1
+
+Go to the function configuration, click `Layers` and then click the `Add a layer` button.
+
+![AddLayerStep1](images/add-layer-to-lambda-config/AddLambdaLayer-1.png)
+
+#### Step 2
+
+On the `Add Layer` page, select `Custom layers`, then select the exact custom layer in the dropdown.
+
+Next, select the version of the custom layer. If this is a brand-new layer, it will only have one version: select version `1`.
+
+Click the `Add` button.
+
+![AddLayerStep2](images/add-layer-to-lambda-config/AddLambdaLayer-2.png)
+
+#### Step 3
+
+Finally, confirm that the custom layer has been added to your Lambda function as shown here:
+![AddLayerStep3](images/add-layer-to-lambda-config/AddLambdaLayer-3.png)
 
 ### import and run!
 
