@@ -5,7 +5,7 @@ LIB_DIR='build_output/lib'
 # set the docker image name here (optional)
 IMAGE_NAME='nonbeing/lambda-python38-mysqlclient'
 
-sudo rm -rf ${PKG_DIR} ${LIB_DIR}
+sudo rm -rf build_output
 mkdir -p ${PKG_DIR} && mkdir -p ${LIB_DIR}
 
 # build a docker image closely matching the AWS Lambda environment, with mysql-devel installed
