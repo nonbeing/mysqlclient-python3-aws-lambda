@@ -1,1 +1,3 @@
 .vscode/
+build_output/python
+build_output/lib
