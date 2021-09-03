@@ -1,6 +1,6 @@
 #!/bin/bash
-PKG_DIR='build_output/python'
-LIB_DIR='build_output/lib'
+PKG_DIR='build_output/python/'
+LIB_DIR='build_output/lib/'
 
 # set the docker image name here (optional)
 IMAGE_NAME='nonbeing/lambda-python38-mysqlclient'
