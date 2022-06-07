@@ -12,7 +12,7 @@ If you need a ready-made, tested AWS Layer for `mysqlclient`, just use `build_ou
 
 | Python Version  |  MySQL Version | Branch to use  |
 |---|---|---|
-| 3.x  |  MySQL v8.0.x |  master |
+| 3.9  |  MySQL v8.0.x |  master |
 | 3.x  |  MySQL v5.6.x  |  mysql-5.6 |
 | 3.x | I want to build an AWS Lambda layer for a non-MySQL Python package| general-purpose |
 

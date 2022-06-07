@@ -1,4 +1,4 @@
-FROM lambci/lambda:build-python3.8
+FROM public.ecr.aws/sam/build-python3.9
 
 ARG mysql_gpg_key_url="https://repo.mysql.com/RPM-GPG-KEY-mysql"
 ARG mysql_gpg_key_name="RPM-GPG-KEY-mysql"
