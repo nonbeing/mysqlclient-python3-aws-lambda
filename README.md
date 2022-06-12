@@ -3,7 +3,7 @@
 This project provides:
 
 1. Ready-made AWS layer zips for the Python [mysqlclient](https://github.com/PyMySQL/mysqlclient-python) (aka MySQLdb) package: for MySQL 5.6 and MySQL 8.0
-2. An easy, docker-based solution for building your own AWS layer: for `mysqlclient` for ANY version of MySQL server and ANY version of Python too. 
+2. An easy, docker-based solution for building your own AWS layer: for `mysqlclient` for ANY version of MySQL server and ANY version of Python too.
 3. An easy, docker-based, completely generalized solution for building your own AWS layer for ANY Python package for ANY Python version. This is especially useful for importing and using Python packages with platform-specific dependencies (e.g. the package uses `.so` files via FFI) in AWS Lambda. These packages are usually non-trivial to use in AWS Lambda for reasons described below. Example packages that fit these criteria: pandas, numpy, cchardet. If you have this use-case, use the `general-purpose` branch.
 
 ## TLDR
@@ -13,7 +13,8 @@ If you need a ready-made, tested AWS Layer for `mysqlclient`, just use `build_ou
 | Python Version  |  MySQL Version | Branch to use  |
 |---|---|---|
 | 3.9  |  MySQL v8.0.x |  master |
-| 3.x  |  MySQL v5.6.x  |  mysql-5.6 |
+| 3.8  |  MySQL v8.0.x |  mysql8-py3.8 |
+| 3.8  |  MySQL v5.6.x  |   mysql5.6-py3.8 |
 | 3.x | I want to build an AWS Lambda layer for a non-MySQL Python package| general-purpose |
 
 If your use-case is not reflected in the table above (for example, you need to target a different version of MySQL and/or a different version of Python) then you can build your own AWS layer with the tools provided in this repo. Read on for more instructions.
@@ -128,12 +129,12 @@ Ensure you have docker installed; you should be able to run `docker --version` w
 
 The `build.sh` script will perform all the necessary steps and if successful, will produce a `layer.zip` file in the `build_output` directory.
 
-`build.sh` will use the `Dockerfile` to build a docker image based off the `lambci/lambda:build-python3.8` image that very-closely replicates the AWS Lambda environment. Any build dependencies (e.g. RPM packages needed in the build environment) should be specified in the `Dockerfile` beforehand.
+`build.sh` will use the `Dockerfile` to build a docker image based off the `public.ecr.aws/sam/build-python3.9` image that very-closely replicates the AWS Lambda environment. Any build dependencies (e.g. RPM packages needed in the build environment) should be specified in the `Dockerfile` beforehand.
 
 After the docker image has been built, `build.sh` runs `pip_and_copy.sh` which in turn runs `pip install -r requirements.txt` and copies over the necessary `.so` file to the output directory. Finally, `build.sh` zips up the build artifacts in the `build_output/python` and `build_output/lib` directories into a zip ready for upload. This `layer.zip` file is the final artifact, ready-to-upload to AWS Lambda for your new layer.
 
 If you are building a layer for `mysqlclient`, `build.sh` specifically does the following:
-- Downloads and installs the correct, appropriate `mysql-community-devel` RPM in the docker image. This is necessary to `pip install mysqlclient` in Amazon Linux 2. 
+- Downloads and installs the correct, appropriate `mysql-community-devel` RPM in the docker image. This is necessary to `pip install mysqlclient` in Amazon Linux 2.
 - Invokes `pip_and_copy.sh` to `pip install mysqlclient` and copy the correct `.so` file and the python libs out from the docker container and into the `build_output/python` directory.
 - Zips the `build_output/python` and `build_output/lib` dir into `build_output/layer.zip`.
 
@@ -205,6 +206,6 @@ See the [`mysqlclient` FAQ](https://github.com/PyMySQL/mysqlclient-python/blob/a
 
 The work in this repo is largely based off Seungyeon Kim(Acuros Kim)'s project at: https://github.com/StyleShare/aws-lambda-python3-mysql - thanks!
 
-I have adapted that project to build an AWS Layer using a different MySQL-devel package (the one meant for MySQL 8.0.x instead of 5.5) and targeting Python 3.8 (instead of 3.7) - as of this writing.
+I have adapted that project to build an AWS Layer using a different MySQL-devel package (the one meant for MySQL 8.0.x instead of 5.5) and targeting Python 3.8 and Python3.9  (instead of 3.7) - as of this writing.
 
 Thanks also to Michael Hart for [LambCI](https://github.com/lambci/lambci) - without the LambCI docker images, none of these kinds of solutions would be doable this easily.
