@@ -10,10 +10,12 @@ This project provides:
 
 If you need a ready-made, tested AWS Layer for `mysqlclient`, just use `build_output/layer.zip` according to this table:
 
+
 | Python Version  |  MySQL Version | Branch to use  |
 |---|---|---|
-| 3.x  |  MySQL v8.0.x |  master |
-| 3.x  |  MySQL v5.6.x  |  mysql-5.6 |
+| 3.9  |  MySQL v8.0.x |  master |
+| 3.8  |  MySQL v8.0.x |  mysql8-py3.8 |
+| 3.x  |  MySQL v5.6.x  |  mysql5.6-py3.8 |
 | 3.x | I want to build an AWS Lambda layer for a non-MySQL Python package| general-purpose |
 
 If your use-case is not reflected in the table above (for example, you need to target a different version of MySQL and/or a different version of Python) then you can build your own AWS layer with the tools provided in this repo. Read on for more instructions.
